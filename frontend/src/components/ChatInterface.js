@@ -49,7 +49,7 @@ const ChatInterface = ({ sessionId, currentEmotion }) => {
     setIsLoading(true);
 
     try {
-      const response = await sendChatMessage(sessionId, inputMessage, currentEmotion);
+      const response = await sendChatMessage(sessionId, inputMessage, currentEmotion, provider);
       
       const aiMessage = {
         id: Date.now().toString() + "_ai",
