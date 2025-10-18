@@ -109,6 +109,98 @@ const Landing = () => {
             </div>
           </div>
         </div>
+
+        {/* How It Works Section */}
+        <div className="mt-32">
+          <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">How MetaMirror Works</h2>
+          <p className="text-center text-gray-600 text-lg mb-16 max-w-2xl mx-auto">
+            Experience the future of digital therapy through our innovative bio-adaptive platform
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="relative">
+              <div className="bg-white/80 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-lg h-full">
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                  1
+                </div>
+                <div className="mb-6 mt-4">
+                  <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center">
+                    <Camera className="w-24 h-24 text-cyan-600" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Emotion Detection</h3>
+                <p className="text-gray-600 text-sm">
+                  Your webcam analyzes facial expressions using advanced AI to detect your emotional state in real-time.
+                  The system recognizes happiness, sadness, anxiety, and other emotions with high accuracy.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="relative">
+              <div className="bg-white/80 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-lg h-full">
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-teal-500 to-green-500 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                  2
+                </div>
+                <div className="mb-6 mt-4">
+                  <div className="w-full h-48 bg-gradient-to-br from-teal-100 to-green-100 rounded-2xl flex items-center justify-center">
+                    <Sparkles className="w-24 h-24 text-teal-600" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Adaptive Environment</h3>
+                <p className="text-gray-600 text-sm">
+                  Based on your emotions, the therapeutic environment automatically transforms—from calming forests
+                  for stress relief to energizing spaces when you need a boost.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="relative">
+              <div className="bg-white/80 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-lg h-full">
+                <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                  3
+                </div>
+                <div className="mb-6 mt-4">
+                  <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
+                    <Brain className="w-24 h-24 text-blue-600" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">AI Therapy Chat</h3>
+                <p className="text-gray-600 text-sm">
+                  Chat with your AI therapist powered by GPT-4o or Gemini 2.5 Pro. Get personalized guidance,
+                  coping strategies, and emotional support tailored to your current state.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Demo Video/Screenshots */}
+          <div className="mt-16 bg-white/80 backdrop-blur-md rounded-3xl p-8 border border-white/40 shadow-lg">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-6 text-center">See MetaMirror in Action</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="relative group cursor-pointer">
+                <div className="aspect-video bg-gradient-to-br from-cyan-100 to-blue-100 rounded-2xl overflow-hidden flex items-center justify-center hover:shadow-xl transition-all">
+                  <div className="text-center">
+                    <Activity className="w-16 h-16 text-cyan-600 mx-auto mb-3" />
+                    <p className="text-gray-700 font-medium">Emotion Detection Demo</p>
+                    <p className="text-sm text-gray-500 mt-1">Real-time facial analysis</p>
+                  </div>
+                </div>
+              </div>
+              <div className="relative group cursor-pointer">
+                <div className="aspect-video bg-gradient-to-br from-teal-100 to-green-100 rounded-2xl overflow-hidden flex items-center justify-center hover:shadow-xl transition-all">
+                  <div className="text-center">
+                    <Heart className="w-16 h-16 text-teal-600 mx-auto mb-3" />
+                    <p className="text-gray-700 font-medium">Adaptive Environments</p>
+                    <p className="text-sm text-gray-500 mt-1">Dynamic mood-based scenes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
