@@ -79,14 +79,40 @@ const ChatInterface = ({ sessionId, currentEmotion }) => {
     <div className="flex flex-col h-full" data-testid="chat-interface">
       {/* Chat Header */}
       <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-cyan-50 to-teal-50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center">
-            <Bot className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center">
+              <Bot className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">AI Therapist</h3>
+              <p className="text-xs text-gray-600">Here to support you</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">AI Therapist</h3>
-            <p className="text-xs text-gray-600">Here to support you</p>
-          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setProvider("gemini")}
+            data-testid="provider-gemini-btn"
+            className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+              provider === "gemini"
+                ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-md"
+                : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
+            }`}
+          >
+            Gemini 2.5 Pro
+          </button>
+          <button
+            onClick={() => setProvider("openai")}
+            data-testid="provider-openai-btn"
+            className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+              provider === "openai"
+                ? "bg-gradient-to-r from-cyan-500 to-teal-500 text-white shadow-md"
+                : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
+            }`}
+          >
+            GPT-4o
+          </button>
         </div>
       </div>
 
