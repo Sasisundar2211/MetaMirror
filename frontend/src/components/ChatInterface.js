@@ -10,6 +10,7 @@ const ChatInterface = ({ sessionId, currentEmotion }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [provider, setProvider] = useState("gemini");
   const scrollRef = useRef(null);
 
   useEffect(() => {
