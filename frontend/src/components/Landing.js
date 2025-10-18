@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Brain, Sparkles, Heart, Activity } from "lucide-react";
+import { Brain, Sparkles, Heart, Activity, Camera } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
