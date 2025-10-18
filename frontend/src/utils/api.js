@@ -46,11 +46,12 @@ export const trackEmotion = async (sessionId, emotion, confidence) => {
 };
 
 // Chat APIs
-export const sendChatMessage = async (sessionId, message, emotionState) => {
+export const sendChatMessage = async (sessionId, message, emotionState, provider = "gemini") => {
   const response = await axios.post(`${API}/chat`, {
     session_id: sessionId,
     message,
-    emotion_state: emotionState
+    emotion_state: emotionState,
+    provider
   });
   return response.data;
 };
