@@ -10,6 +10,7 @@ from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
 from openai import OpenAI
+import google.generativeai as genai
 import json
 
 ROOT_DIR = Path(__file__).parent
@@ -20,12 +21,20 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# OpenAI client
+# AI Providers Setup
 openai_api_key = os.environ.get('OPENAI_API_KEY', '')
+gemini_api_key = os.environ.get('GEMINI_API_KEY', '')
+
+# Initialize OpenAI
+openai_client = None
 if openai_api_key:
     openai_client = OpenAI(api_key=openai_api_key)
-else:
-    openai_client = None
+
+# Initialize Gemini
+gemini_model = None
+if gemini_api_key:
+    genai.configure(api_key=gemini_api_key)
+    gemini_model = genai.GenerativeModel('gemini-2.5-pro')
 
 # Create the main app
 app = FastAPI()
@@ -38,12 +47,14 @@ class User(BaseModel):
     name: str
     email: str
     avatar_style: Optional[str] = "default"
+    preferred_provider: Optional[str] = "gemini"  # 'openai' or 'gemini'
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UserCreate(BaseModel):
     name: str
     email: str
     avatar_style: Optional[str] = "default"
+    preferred_provider: Optional[str] = "gemini"
 
 class EmotionData(BaseModel):
     emotion: str
@@ -57,6 +68,7 @@ class Message(BaseModel):
     role: str  # 'user' or 'assistant'
     content: str
     emotion_state: Optional[str] = None
+    provider: Optional[str] = None  # Track which AI provider was used
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class MessageCreate(BaseModel):
@@ -84,11 +96,18 @@ class ChatRequest(BaseModel):
     session_id: str
     message: str
     emotion_state: Optional[str] = None
+    provider: Optional[str] = "gemini"  # Allow provider selection
 
 # API Endpoints
 @api_router.get("/")
 async def root():
-    return {"message": "MetaMirror API - Bio-Adaptive Metaverse for Mental Well-Being"}
+    return {
+        "message": "MetaMirror API - Bio-Adaptive Metaverse for Mental Well-Being",
+        "providers": {
+            "openai": openai_client is not None,
+            "gemini": gemini_model is not None
+        }
+    }
 
 # User endpoints
 @api_router.post("/users", response_model=User)
@@ -190,18 +209,24 @@ def determine_environment(emotion: str) -> str:
     else:
         return "calm"
 
-# Chat endpoints
+# Chat endpoints with multi-provider support
 @api_router.post("/chat")
 async def chat_with_therapist(request: ChatRequest):
-    if not openai_client:
-        raise HTTPException(status_code=503, detail="OpenAI API key not configured")
+    provider = request.provider or "gemini"
+    
+    # Validate provider availability
+    if provider == "openai" and not openai_client:
+        raise HTTPException(status_code=503, detail="OpenAI provider not configured")
+    if provider == "gemini" and not gemini_model:
+        raise HTTPException(status_code=503, detail="Gemini provider not configured")
     
     # Save user message
     user_message = Message(
         session_id=request.session_id,
         role="user",
         content=request.message,
-        emotion_state=request.emotion_state
+        emotion_state=request.emotion_state,
+        provider=provider
     )
     user_msg_doc = user_message.model_dump()
     user_msg_doc['timestamp'] = user_msg_doc['timestamp'].isoformat()
@@ -213,25 +238,52 @@ async def chat_with_therapist(request: ChatRequest):
         {"_id": 0}
     ).sort("timestamp", 1).limit(10).to_list(10)
     
-    # Build context for GPT
-    messages = [
-        {
-            "role": "system",
-            "content": f"""You are a compassionate AI therapist in MetaMirror, a bio-adaptive metaverse for mental well-being. 
-            Your role is to provide empathetic, supportive guidance to users dealing with stress, anxiety, and emotional challenges.
-            
-            Current user emotional state: {request.emotion_state or 'neutral'}
-            
-            Guidelines:
-            - Be warm, empathetic, and non-judgmental
-            - Ask open-ended questions to understand their feelings
-            - Provide coping strategies and mindfulness techniques
-            - Encourage self-reflection and emotional awareness
-            - Keep responses concise (2-4 sentences)
-            - Never diagnose or replace professional therapy
-            - Adapt your tone to their emotional state"""
+    # Build system prompt
+    system_prompt = f"""You are a compassionate AI therapist in MetaMirror, a bio-adaptive metaverse for mental well-being. 
+Your role is to provide empathetic, supportive guidance to users dealing with stress, anxiety, and emotional challenges.
+
+Current user emotional state: {request.emotion_state or 'neutral'}
+
+Guidelines:
+- Be warm, empathetic, and non-judgmental
+- Ask open-ended questions to understand their feelings
+- Provide coping strategies and mindfulness techniques
+- Encourage self-reflection and emotional awareness
+- Keep responses concise (2-4 sentences)
+- Never diagnose or replace professional therapy
+- Adapt your tone to their emotional state"""
+    
+    try:
+        if provider == "openai":
+            ai_response = await chat_with_openai(system_prompt, history)
+        else:  # gemini
+            ai_response = await chat_with_gemini(system_prompt, history, request.message)
+        
+        # Save AI response
+        ai_message = Message(
+            session_id=request.session_id,
+            role="assistant",
+            content=ai_response,
+            emotion_state=request.emotion_state,
+            provider=provider
+        )
+        ai_msg_doc = ai_message.model_dump()
+        ai_msg_doc['timestamp'] = ai_msg_doc['timestamp'].isoformat()
+        await db.messages.insert_one(ai_msg_doc)
+        
+        return {
+            "message": ai_response,
+            "emotion_state": request.emotion_state,
+            "provider": provider
         }
-    ]
+    
+    except Exception as e:
+        logging.error(f"AI service error ({provider}): {str(e)}")
+        raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")
+
+async def chat_with_openai(system_prompt: str, history: List[Dict]) -> str:
+    """Chat using OpenAI GPT"""
+    messages = [{"role": "system", "content": system_prompt}]
     
     # Add conversation history
     for msg in history[-6:]:  # Last 3 exchanges
@@ -240,36 +292,27 @@ async def chat_with_therapist(request: ChatRequest):
             "content": msg["content"]
         })
     
-    try:
-        # Call OpenAI API
-        response = openai_client.chat.completions.create(
-            model="gpt-4",
-            messages=messages,
-            max_tokens=150,
-            temperature=0.8
-        )
-        
-        ai_response = response.choices[0].message.content
-        
-        # Save AI response
-        ai_message = Message(
-            session_id=request.session_id,
-            role="assistant",
-            content=ai_response,
-            emotion_state=request.emotion_state
-        )
-        ai_msg_doc = ai_message.model_dump()
-        ai_msg_doc['timestamp'] = ai_msg_doc['timestamp'].isoformat()
-        await db.messages.insert_one(ai_msg_doc)
-        
-        return {
-            "message": ai_response,
-            "emotion_state": request.emotion_state
-        }
+    response = openai_client.chat.completions.create(
+        model="gpt-4o",
+        messages=messages,
+        max_tokens=150,
+        temperature=0.8
+    )
     
-    except Exception as e:
-        logging.error(f"OpenAI API error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")
+    return response.choices[0].message.content
+
+async def chat_with_gemini(system_prompt: str, history: List[Dict], current_message: str) -> str:
+    """Chat using Google Gemini"""
+    # Build conversation context
+    conversation_context = system_prompt + "\n\nConversation history:\n"
+    for msg in history[-6:]:
+        role = "User" if msg["role"] == "user" else "Therapist"
+        conversation_context += f"{role}: {msg['content']}\n"
+    
+    conversation_context += f"\nUser: {current_message}\n\nTherapist:"
+    
+    response = gemini_model.generate_content(conversation_context)
+    return response.text
 
 @api_router.get("/chat/history/{session_id}", response_model=List[Message])
 async def get_chat_history(session_id: str):
