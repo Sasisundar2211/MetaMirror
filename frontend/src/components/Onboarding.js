@@ -22,6 +22,7 @@ const Onboarding = () => {
     name: "",
     email: "",
     avatar_style: "calm",
+    preferred_provider: "gemini",
   });
 
   const handleNext = () => {
