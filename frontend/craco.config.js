@@ -35,6 +35,13 @@ const webpackConfig = {
       '@': path.resolve(__dirname, 'src'),
     },
     configure: (webpackConfig) => {
+      // Add fallback for Node.js modules in browser (for face-api.js)
+      webpackConfig.resolve.fallback = {
+        ...webpackConfig.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+      };
 
       // Disable hot reload completely if environment variable is set
       if (config.disableHotReload) {
