@@ -154,7 +154,18 @@ volumes:
   mongo-data:
 ```
 
-Then run: `docker-compose up -d`
+Then run:
+- Development: `docker-compose up -d`
+- Production: `docker-compose -f docker-compose.prod.yml up -d`
+
+**Note:** The repository includes two docker-compose files:
+- `docker-compose.yml` - For local development with hot-reload
+- `docker-compose.prod.yml` - For production with security best practices
+
+For production, copy `.env.prod.example` to `.env.prod` and fill in your values, then use:
+```bash
+docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+```
 
 ## Required GitHub Secrets
 

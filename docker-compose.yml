@@ -1,4 +1,5 @@
-version: '3.8'
+# Docker Compose for Development
+# For production deployment, use docker-compose.prod.yml
 
 services:
   mongodb:
@@ -11,6 +12,9 @@ services:
       - mongo-data:/data/db
     environment:
       - MONGO_INITDB_DATABASE=metamirror
+      # Add authentication for production:
+      # - MONGO_INITDB_ROOT_USERNAME=admin
+      # - MONGO_INITDB_ROOT_PASSWORD=your_password
 
   backend:
     build: ./backend
@@ -27,6 +31,7 @@ services:
     depends_on:
       - mongodb
     volumes:
+      # Mount for development hot-reload
       - ./backend:/app
     command: uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 

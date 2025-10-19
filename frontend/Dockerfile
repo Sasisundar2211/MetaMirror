@@ -13,6 +13,8 @@ RUN npm ci
 COPY . .
 
 # Build the application
+# CI=false allows build to continue with warnings (face-api.js source map warnings)
+# Remove this if you want strict builds
 ENV CI=false
 RUN npm run build
 
