@@ -68,6 +68,21 @@ const webpackConfig = {
         webpackConfig.plugins.push(healthPluginInstance);
       }
 
+      // Ignore source map warnings from face-api.js
+      webpackConfig.ignoreWarnings = [
+        ...(webpackConfig.ignoreWarnings || []),
+        /Failed to parse source map from .*face-api\.js/,
+      ];
+
+      // Add fallback for 'fs' module
+      webpackConfig.resolve = {
+        ...webpackConfig.resolve,
+        fallback: {
+          ...(webpackConfig.resolve?.fallback),
+          fs: false,
+        },
+      };
+
       return webpackConfig;
     },
   },
