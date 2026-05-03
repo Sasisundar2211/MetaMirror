@@ -135,7 +135,7 @@ Live deployments:
 
 | Service | URL |
 | --- | --- |
-| Frontend | https://frontend-ewkt6nl75-sasisundar2211s-projects.vercel.app |
+| Frontend | https://frontend-klghpfxa1-sasisundar2211s-projects.vercel.app |
 | Backend API | https://backend-j9ro7od6g-sasisundar2211s-projects.vercel.app |
 
 Latest deployment configuration commit: `564ab97 Add backend deployment configuration`
