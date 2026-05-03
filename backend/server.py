@@ -175,42 +175,33 @@ async def provider_status():
     }
 
 
-    @api_router.get("/list-models")
-    async def list_models():
-        """Attempt to list available models from the Gemini/Generative API.
+@api_router.get("/list-models")
+async def list_models():
+    """Attempt to list available models from the Gemini/Generative API."""
+    if not gemini_api_key:
+        raise HTTPException(status_code=503, detail="GEMINI_API_KEY not configured on the server")
 
-        This endpoint is best-effort: if the SDK supports listing models it will
-        return their ids; otherwise it returns guidance on how to list models
-        using the Google Cloud CLI.
-        """
-        if not gemini_api_key:
-            raise HTTPException(status_code=503, detail="GEMINI_API_KEY not configured on the server")
+    try:
+        if hasattr(genai, 'list_models'):
+            models = genai.list_models()
+            model_names = []
+            try:
+                for m in models:
+                    name = m.get('name') if isinstance(m, dict) else getattr(m, 'name', None)
+                    if name:
+                        model_names.append(name)
+            except Exception:
+                return {"models_raw": models}
 
-        # Try SDK method if available
-        try:
-            if hasattr(genai, 'list_models'):
-                models = genai.list_models()
-                # Attempt to extract a reasonable representation
-                model_names = []
-                try:
-                    for m in models:
-                        # m may be a dict-like or object
-                        name = m.get('name') if isinstance(m, dict) else getattr(m, 'name', None)
-                        if name:
-                            model_names.append(name)
-                except Exception:
-                    # Fallback: return raw SDK response
-                    return {"models_raw": models}
+            return {"models": model_names}
 
-                return {"models": model_names}
-            else:
-                return {
-                    "message": "SDK does not expose a list_models() helper. Use gcloud to list available models.",
-                    "gcloud_example": "gcloud ai models list --region=us-central1"
-                }
-        except Exception as e:
-            logger.error("Failed to list models via SDK: %s", str(e))
-            raise HTTPException(status_code=500, detail=f"Failed to list models: {str(e)}")
+        return {
+            "message": "SDK does not expose a list_models() helper. Use gcloud to list available models.",
+            "gcloud_example": "gcloud ai models list --region=us-central1"
+        }
+    except Exception as e:
+        logger.error("Failed to list models via SDK: %s", str(e))
+        raise HTTPException(status_code=500, detail=f"Failed to list models: {str(e)}")
 
 # User endpoints
 @api_router.post("/users", response_model=User)
@@ -453,6 +444,8 @@ Guidelines:
             "provider": provider
         }
     
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"AI service error ({provider}): {str(e)}")
         raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")
