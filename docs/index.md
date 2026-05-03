@@ -11,7 +11,7 @@ MetaMirror is an AI-powered mental well-being platform that adapts therapy sessi
 
 | Service | URL |
 | --- | --- |
-| Frontend | <https://frontend-7nbjdri9p-sasisundar2211s-projects.vercel.app> |
+| Frontend | <https://frontend-ewkt6nl75-sasisundar2211s-projects.vercel.app> |
 | Backend API | <https://backend-j9ro7od6g-sasisundar2211s-projects.vercel.app> |
 
 ## Repository
