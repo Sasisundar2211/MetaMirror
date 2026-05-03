@@ -137,7 +137,7 @@ Preview deploy:
 vercel deploy -y
 ```
 
-For the deployed frontend to talk to a live backend, configure `REACT_APP_BACKEND_URL` in the Vercel project to point at a hosted FastAPI API. Host the backend on a Python-capable platform such as Render, Railway, Fly.io, or a VM, then set:
+For the deployed frontend to talk to a live backend, configure `REACT_APP_BACKEND_URL` in the frontend deployment to point at a hosted FastAPI API. The backend can be deployed from `backend/` with its included Vercel configuration or hosted on a Python-capable platform such as Render, Railway, Fly.io, or a VM.
 
 ```bash
 REACT_APP_BACKEND_URL=https://your-api-host.example.com
