@@ -131,6 +131,15 @@ The backend test expects MongoDB and the API server to be running.
 
 The included `vercel.json` deploys the React frontend from `frontend/`.
 
+Live deployments:
+
+| Service | URL |
+| --- | --- |
+| Frontend | https://frontend-7nbjdri9p-sasisundar2211s-projects.vercel.app |
+| Backend API | https://backend-j9ro7od6g-sasisundar2211s-projects.vercel.app |
+
+Latest deployment configuration commit: `564ab97 Add backend deployment configuration`
+
 Preview deploy:
 
 ```bash
