@@ -35,8 +35,11 @@ class TestDetermineEnvironment:
         assert determine_environment(emotion) == "calm"
 
     def test_case_sensitivity(self):
-        # Function is case-sensitive; 'Happy' is not 'happy'
-        assert determine_environment("Happy") == "calm" or determine_environment("Happy") == determine_environment("Happy")
+        # The function is case-sensitive; 'Happy' is not in the recognised set
+        # and therefore falls through to the default "calm" environment.
+        assert determine_environment("Happy") == "calm"
+        assert determine_environment("Sad") == "calm"
+        assert determine_environment("ANGRY") == "calm"
 
     def test_returns_string(self):
         result = determine_environment("happy")
