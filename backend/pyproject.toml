@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "metamirror-backend"
+version = "0.1.0"
+description = "MetaMirror bio-adaptive mental well-being API (FastAPI + MongoDB + Gemini)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["fastapi", "mental-health", "gemini", "mongodb", "therapist-ai"]
+dependencies = [
+    "fastapi==0.110.1",
+    "uvicorn==0.25.0",
+    "motor==3.3.1",
+    "pymongo==4.5.0",
+    "pydantic==2.12.0",
+    "python-dotenv==1.1.1",
+    "google-generativeai==0.8.5",
+    "starlette==0.37.2",
+    "python-multipart==0.0.20",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.4.2",
+    "pytest-asyncio==0.24.0",
+    "httpx==0.28.1",
+    "black==25.9.0",
+    "isort==6.1.0",
+    "flake8==7.3.0",
+    "mypy==1.18.2",
+]
+
+[project.scripts]
+metamirror-api = "server:app"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["server*", "api*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | __pycache__
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["server"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_return_any = false
+strict_optional = true
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503"]
+exclude = [".git", "__pycache__", "venv", ".venv", "build", "dist"]

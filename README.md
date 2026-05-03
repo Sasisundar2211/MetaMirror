@@ -26,8 +26,18 @@ The project is structured as a full-stack prototype for reflective therapy sessi
 
 ```text
 MetaMirror/
-├── backend/                # FastAPI application and API diagnostics
+├── backend/                # Python package – FastAPI application
+│   ├── pyproject.toml      # Python project metadata and tool configuration
+│   ├── requirements.txt    # Pinned runtime dependencies
+│   ├── server.py           # FastAPI app, Pydantic models, and API routes
+│   ├── api/
+│   │   └── index.py        # Vercel serverless entry-point
+│   └── tests/              # Pytest test suite
+│       ├── conftest.py     # Shared fixtures and env-var setup
+│       ├── test_models.py  # Pydantic model unit tests
+│       └── test_logic.py   # Pure-function unit tests
 ├── frontend/               # React app, UI components, and static build setup
+├── Makefile                # Developer convenience targets
 ├── vercel.json             # Vercel frontend deployment configuration
 ├── README.md               # Project overview and setup guide
 └── .gitignore              # Repo hygiene and secret exclusion rules
@@ -118,7 +128,14 @@ cd frontend
 npm run build
 ```
 
-Backend smoke test:
+Backend unit tests (no running server or database required):
+
+```bash
+cd backend
+python -m pytest tests/ -v
+```
+
+Backend smoke test (requires a running MongoDB and API server):
 
 ```bash
 cd backend
@@ -126,6 +143,21 @@ python test_api.py
 ```
 
 The backend test expects MongoDB and the API server to be running.
+
+## Makefile Targets
+
+A root `Makefile` provides convenience targets for the whole project:
+
+```bash
+make help             # List all targets
+make install          # Install backend (pip) and frontend (npm) dependencies
+make backend          # Start the FastAPI dev server on port 8000
+make frontend         # Start the React dev server on port 3000
+make test-backend     # Run pytest unit tests
+make lint-backend     # Run flake8 + mypy
+make format-backend   # Auto-format with black + isort
+make build-frontend   # Build the React production bundle
+```
 
 ## Deployment
 
